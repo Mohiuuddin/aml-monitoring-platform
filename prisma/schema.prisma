@@ -1,0 +1,227 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TransactionType {
+  CASH_DEPOSIT
+  CASH_WITHDRAWAL
+  TRANSFER
+  CARD_PAYMENT
+  INTERNATIONAL_TRANSFER
+}
+
+enum TransactionDirection {
+  INCOMING
+  OUTGOING
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertStatus {
+  OPEN
+  INVESTIGATING
+  ESCALATED
+  FALSE_POSITIVE
+  CLOSED
+}
+
+enum InvestigationStatus {
+  OPEN
+  IN_PROGRESS
+  ESCALATED
+  RESOLVED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+  INVESTIGATION_STARTED
+  INVESTIGATION_UPDATED
+  ALERT_ESCALATED
+  ALERT_CLOSED
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  name               String
+  email              String              @unique
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  investigations     Investigation[]
+  investigationNotes InvestigationNote[]
+  auditLogs          AuditLog[]
+
+  @@map("users")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?  @unique
+  phone     String?
+  country   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts     Account[]
+  transactions Transaction[]
+  alerts       Alert[]
+
+  @@map("customers")
+}
+
+model Account {
+  id           String        @id @default(cuid())
+  accountNo    String        @unique
+  customerId   String
+  currency     String        @default("BDT")
+  balance      Decimal       @default(0)
+  isActive     Boolean       @default(true)
+  openedAt     DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([customerId])
+  @@map("accounts")
+}
+
+model Transaction {
+  id                  String          @id @default(cuid())
+  accountId           String
+  customerId          String
+  amount              Decimal
+  currency            String
+  type                TransactionType
+  direction           TransactionType
+  counterparty        String?
+  counterpartyCountry String?
+  description         String?
+  transactionAt       DateTime        @default(now())
+  createdAt           DateTime        @default(now())
+
+  account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  alerts   Alert[]
+
+  @@index([accountId])
+  @@index([customerId])
+  @@index([transactionAt])
+  @@map("transactions")
+}
+
+model AMLRule {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  code        String      @unique
+  riskWeight  Int
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  alertRules  AlertRule[]
+
+  @@map("aml_rules")
+}
+
+model Alert {
+  id            String      @id @default(cuid())
+  customerId    String
+  transactionId String?
+  riskScore     Int
+  riskLevel     RiskLevel
+  status        AlertStatus @default(OPEN)
+  title         String
+  description   String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  customer       Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  transaction    Transaction?   @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  triggeredRules AlertRule[]
+  investigation  Investigation?
+
+  @@index([customerId])
+  @@index([status])
+  @@index([riskLevel])
+  @@map("alerts")
+}
+
+model AlertRule {
+  id        String   @id @default(cuid())
+  alertId   String
+  ruleId    String
+  createdAt DateTime @default(now())
+  alert     Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  rule      AMLRule  @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@unique([alertId, ruleId])
+  @@map("alert_rules")
+}
+
+model Investigation {
+  id        String              @id @default(cuid())
+  alertId   String              @unique
+  analystId String
+  status    InvestigationStatus @default(OPEN)
+  summary   String?
+
+  startedAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  closedAt  DateTime?
+
+  alert   Alert               @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  analyst User                @relation(fields: [analystId], references: [id])
+  notes   InvestigationNote[]
+
+  @@index([analystId])
+  @@map("investigations")
+}
+
+model InvestigationNote {
+  id              String   @id @default(cuid())
+  investigationId String
+  authorId        String
+  content         String
+  createdAt       DateTime @default(now())
+
+  investigation Investigation @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+  author        User          @relation(fields: [authorId], references: [id])
+
+  @@index([authorId])
+  @@map("investigation_notes")
+}
+
+model AuditLog {
+  id       String      @id @default(cuid())
+  userId   String
+  action   AuditAction
+  entity   String
+  entityId String
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
