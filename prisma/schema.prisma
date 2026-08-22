@@ -1,7 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// This is your Prisma schema file.
+// Learn more about Prisma: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client"
@@ -64,12 +62,18 @@ enum UserRole {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  name               String
-  email              String              @unique
-  role               UserRole            @default(ANALYST)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  role          UserRole @default(ANALYST)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions           Session[]
+  accounts           Account[]
   investigations     Investigation[]
   investigationNotes InvestigationNote[]
   auditLogs          AuditLog[]
@@ -86,22 +90,23 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts     Account[]
+  bankAccounts BankAccount[]
   transactions Transaction[]
   alerts       Alert[]
 
   @@map("customers")
 }
 
-model Account {
-  id           String        @id @default(cuid())
-  accountNo    String        @unique
-  customerId   String
-  currency     String        @default("BDT")
-  balance      Decimal       @default(0)
-  isActive     Boolean       @default(true)
-  openedAt     DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+model BankAccount {
+  id         String   @id @default(cuid())
+  accountNo  String   @unique
+  customerId String
+  currency   String   @default("BDT")
+  balance    Decimal  @default(0)
+  isActive   Boolean  @default(true)
+  openedAt   DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 
@@ -110,21 +115,21 @@ model Account {
 }
 
 model Transaction {
-  id                  String          @id @default(cuid())
+  id                  String               @id @default(cuid())
   accountId           String
   customerId          String
   amount              Decimal
   currency            String
   type                TransactionType
-  direction           TransactionType
+  direction           TransactionDirection
   counterparty        String?
   counterpartyCountry String?
   description         String?
-  transactionAt       DateTime        @default(now())
-  createdAt           DateTime        @default(now())
+  transactionAt       DateTime             @default(now())
+  createdAt           DateTime             @default(now())
 
-  account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  account  BankAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  customer Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
   alerts   Alert[]
 
   @@index([accountId])
@@ -134,15 +139,16 @@ model Transaction {
 }
 
 model AMLRule {
-  id          String      @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String
-  code        String      @unique
+  code        String   @unique
   riskWeight  Int
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  alertRules  AlertRule[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  alertRules AlertRule[]
 
   @@map("aml_rules")
 }
@@ -175,8 +181,9 @@ model AlertRule {
   alertId   String
   ruleId    String
   createdAt DateTime @default(now())
-  alert     Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
-  rule      AMLRule  @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  alert Alert   @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  rule  AMLRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
 
   @@unique([alertId, ruleId])
   @@map("alert_rules")
@@ -224,10 +231,62 @@ model AuditLog {
   metadata Json?
 
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([entity, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  issuer                String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([issuer, accountId])
+  @@index([userId])
+  @@map("accounts_auth")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verifications")
 }
