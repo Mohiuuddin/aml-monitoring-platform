@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+
 import { authClient } from "@/lib/auth-client";
 
 export default function SignupPage() {
-  const router = useRouter();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +19,8 @@ export default function SignupPage() {
     confirmPassword: "",
   });
 
+  const [success, setSuccess] = useState(false);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -30,6 +30,8 @@ export default function SignupPage() {
       password: "",
       confirmPassword: "",
     });
+
+    setSuccess(false);
 
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
@@ -106,6 +108,7 @@ export default function SignupPage() {
       return;
     }
 
+    // Create account
     const { error } = await authClient.signUp.email({
       name: trimmedName,
       email: trimmedEmail,
@@ -120,7 +123,14 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/dashboard");
+    // Account successfully created
+    setSuccess(true);
+
+    // Clear form
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
   };
 
   return (
@@ -135,6 +145,20 @@ export default function SignupPage() {
             Create your analyst account
           </p>
         </div>
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 rounded-md border border-green-500/30 bg-green-500/10 px-4 py-3">
+            <p className="text-sm font-medium text-green-700 dark:text-green-400">
+              Account created successfully.
+            </p>
+
+            <p className="mt-1 text-sm text-green-700/80 dark:text-green-400/80">
+              Your account is currently inactive. Please contact an
+              administrator to activate your account before signing in.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}

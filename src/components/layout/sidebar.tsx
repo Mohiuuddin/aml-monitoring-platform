@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -8,14 +6,12 @@ import {
   History,
   LayoutDashboard,
   Settings2,
-  ShieldCheck,
   Users,
   UserRoundSearch,
 } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
-
-type UserRole = "ADMIN" | "ANALYST";
+import { getCurrentUser } from "@/lib/auth/get-current-user";
 
 const mainNavigation = [
   {
@@ -63,23 +59,12 @@ const adminNavigation = [
   },
 ];
 
-export function Sidebar() {
-  // Temporary role.
-  // We will get this from the Better Auth session later.
-  const role: UserRole = "ANALYST";
+export async function Sidebar() {
+  const user = await getCurrentUser();
 
   return (
     <aside className="hidden min-h-[calc(100vh-4rem)] w-64 shrink-0 border-r bg-background md:block">
       <div className="flex h-full flex-col">
-        {/* Platform */}
-        <div className="flex h-16 items-center gap-2 px-6">
-          <ShieldCheck className="h-5 w-5" />
-
-          <span className="text-sm font-semibold">Monitoring</span>
-        </div>
-
-        <Separator />
-
         {/* Navigation */}
         <nav className="flex-1 space-y-1 p-4">
           <p className="mb-3 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -102,7 +87,7 @@ export function Sidebar() {
           })}
 
           {/* Admin navigation */}
-          {role === "ADMIN" && (
+          {user?.role === "ADMIN" && (
             <>
               <div className="my-4">
                 <Separator />
