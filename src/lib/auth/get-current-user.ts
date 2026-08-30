@@ -21,6 +21,8 @@ export async function getCurrentUser() {
       email: true,
       role: true,
       status: true,
+      image: true,
+      createdAt: true,
     },
   });
 

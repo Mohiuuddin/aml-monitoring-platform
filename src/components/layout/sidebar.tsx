@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Settings2,
   Users,
+  User,
   UserRoundSearch,
 } from "lucide-react";
 
@@ -38,6 +39,11 @@ const mainNavigation = [
     title: "Customers",
     href: "/customers",
     icon: UserRoundSearch,
+  },
+  {
+    title: "Profile",
+    href: "/profile",
+    icon: User,
   },
 ];
 
