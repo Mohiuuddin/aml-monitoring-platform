@@ -10,6 +10,12 @@ datasource db {
   provider = "postgresql"
 }
 
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
 enum TransactionType {
   CASH_DEPOSIT
   CASH_WITHDRAWAL
@@ -88,11 +94,15 @@ model User {
 }
 
 model Customer {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?  @unique
-  phone     String?
-  country   String
+  id             String         @id @default(cuid())
+  customerNumber String         @unique
+  name           String
+  email          String?        @unique
+  phone          String?
+  country        String
+  riskLevel      RiskLevel      @default(LOW)
+  status         CustomerStatus @default(ACTIVE)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -100,6 +110,9 @@ model Customer {
   transactions Transaction[]
   alerts       Alert[]
 
+  @@index([name])
+  @@index([riskLevel])
+  @@index([status])
   @@map("customers")
 }
 
