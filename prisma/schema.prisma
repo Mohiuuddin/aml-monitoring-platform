@@ -16,6 +16,13 @@ enum CustomerStatus {
   BLOCKED
 }
 
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+  CLOSED
+}
+
 enum TransactionType {
   CASH_DEPOSIT
   CASH_WITHDRAWAL
@@ -122,7 +129,7 @@ model BankAccount {
   customerId String
   currency   String   @default("BDT")
   balance    Decimal  @default(0)
-  isActive   Boolean  @default(true)
+  status AccountStatus @default(ACTIVE)
   openedAt   DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

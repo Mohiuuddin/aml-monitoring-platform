@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 
 import { getCustomer } from "@/lib/customers/get-customer";
 import { CustomerDetails } from "@/components/customers/customer-details";
+import { CustomerAccounts } from "@/components/customers/customer-accounts";
 
 interface CustomerPageProps {
   params: Promise<{
@@ -38,6 +39,7 @@ export default async function CustomerPage({ params }: CustomerPageProps) {
       </div>
 
       <CustomerDetails customer={customer} />
+      <CustomerAccounts customerId={customer.id} />
     </div>
   );
 }
