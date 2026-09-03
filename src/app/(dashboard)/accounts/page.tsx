@@ -4,6 +4,9 @@ import { getAllAccounts } from "@/lib/accounts/get-all-accounts";
 interface AccountsPageProps {
   searchParams: Promise<{
     page?: string;
+    customerName?: string;
+    currency?: string;
+    status?: "ACTIVE" | "INACTIVE" | "BLOCKED" | "CLOSED";
   }>;
 }
 
@@ -15,11 +18,17 @@ export default async function AccountsPage({
   const page = Number(params.page) || 1;
 
   const { accounts, totalAccounts, totalPages, currentPage } =
-    await getAllAccounts(page);
+    await getAllAccounts({
+      page,
+      customerName: params.customerName,
+      currency: params.currency,
+      status: params.status,
+    });
 
   const serializedAccounts = accounts.map((account) => ({
     ...account,
     balance: account.balance.toString(),
+    openedAt: account.openedAt.toISOString(),
   }));
 
   return (
