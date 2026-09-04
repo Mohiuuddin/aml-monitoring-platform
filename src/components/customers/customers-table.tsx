@@ -17,6 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { ChangeStatusDialog } from "@/components/customers/change-status-dialog";
+
 interface Customer {
   id: string;
   customerNumber: string;
@@ -187,7 +189,7 @@ export function CustomersTable({
             {customers.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={7}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No customers found.
@@ -219,30 +221,28 @@ export function CustomersTable({
                   <TableCell>
                     <Badge
                       variant={
+                        customer.status === "BLOCKED"
+                          ? "destructive"
+                          : "default"
+                      }
+                      className={
                         customer.status === "ACTIVE"
-                          ? "default"
-                          : customer.status === "BLOCKED"
-                            ? "destructive"
-                            : "secondary"
+                          ? "bg-green-600 text-white hover:bg-green-700"
+                          : ""
                       }
                     >
                       {customer.status}
                     </Badge>
                   </TableCell>
 
-                  {/* <TableCell className="text-right">
-                    <Link
-                      href={`/customers/${customer.id}`}
-                      className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground"
-                    >
-                      View
-                    </Link>
-                  </TableCell> */}
                   <TableCell>
                     <div className="flex justify-center gap-2">
-                      <Button variant="outline" size="sm">
-                        Change Status
-                      </Button>
+                      <ChangeStatusDialog
+                        customerId={customer.id}
+                        currentStatus={
+                          customer.status as "ACTIVE" | "INACTIVE" | "BLOCKED"
+                        }
+                      />
 
                       <Button variant="outline" size="sm">
                         <Link href={`/customers/${customer.id}`}>View</Link>

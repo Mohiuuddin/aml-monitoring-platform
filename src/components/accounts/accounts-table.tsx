@@ -17,6 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { ChangeStatusDialog } from "@/components/accounts/change-status-dialog";
+
 interface Account {
   id: string;
   accountNo: string;
@@ -187,31 +189,35 @@ export function AccountsTable({
                   <TableCell>
                     <Badge
                       variant={
+                        account.status === "BLOCKED" ||
+                        account.status === "CLOSED"
+                          ? "destructive"
+                          : account.status === "INACTIVE"
+                            ? "default"
+                            : "outline"
+                      }
+                      className={
                         account.status === "ACTIVE"
-                          ? "default"
-                          : account.status === "BLOCKED"
-                            ? "destructive"
-                            : "secondary"
+                          ? "bg-green-600 text-white hover:bg-green-700"
+                          : ""
                       }
                     >
                       {account.status}
                     </Badge>
                   </TableCell>
 
-                  {/* <TableCell className="text-right">
-                    <Button variant="outline" size="sm">
-                      <Link href="#">Change Status</Link>
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Link href={`/accounts/${account.id}`}>View</Link>
-                    </Button>
-                  </TableCell> */}
-
                   <TableCell>
                     <div className="flex justify-center gap-2">
-                      <Button variant="outline" size="sm">
-                        Change Status
-                      </Button>
+                      <ChangeStatusDialog
+                        accountId={account.id}
+                        currentStatus={
+                          account.status as
+                            | "ACTIVE"
+                            | "INACTIVE"
+                            | "BLOCKED"
+                            | "CLOSED"
+                        }
+                      />
 
                       <Button variant="outline" size="sm">
                         <Link href={`/accounts/${account.id}`}>View</Link>
