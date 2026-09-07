@@ -32,8 +32,10 @@ enum TransactionType {
 }
 
 enum TransactionDirection {
-  INCOMING
-  OUTGOING
+
+CREDIT
+DEBIT  
+
 }
 
 enum RiskLevel {
