@@ -18,6 +18,7 @@ type TransactionDirection = "CREDIT" | "DEBIT";
 interface Account {
   id: string;
   accountNo: string;
+  balance: string;
   currency: string;
   customer: {
     name: string;
@@ -140,6 +141,28 @@ export function CreateTransactionForm({
         <input
           id="currency"
           value={selectedAccount?.currency ?? ""}
+          placeholder="Select an account"
+          readOnly
+          className="h-10 w-full rounded-md border bg-muted px-3 text-sm"
+        />
+      </div>
+
+      {/* Available Balance */}
+      <div className="space-y-2">
+        <label htmlFor="balance" className="text-sm font-medium">
+          Available Balance
+        </label>
+
+        <input
+          id="balance"
+          value={
+            selectedAccount
+              ? `${Number(selectedAccount.balance).toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })} ${selectedAccount.currency}`
+              : ""
+          }
           placeholder="Select an account"
           readOnly
           className="h-10 w-full rounded-md border bg-muted px-3 text-sm"

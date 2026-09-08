@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -98,42 +98,6 @@ export function TransactionsTable({
     searchParams.get("account") ?? "",
   );
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      if (customerSearch) {
-        params.set("customer", customerSearch);
-      } else {
-        params.delete("customer");
-      }
-
-      params.delete("page");
-
-      router.push(`${pathname}?${params.toString()}`);
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [customerSearch, pathname, router, searchParams]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      if (accountSearch) {
-        params.set("account", accountSearch);
-      } else {
-        params.delete("account");
-      }
-
-      params.delete("page");
-
-      router.push(`${pathname}?${params.toString()}`);
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [accountSearch, pathname, router, searchParams]);
-
   function updateFilter(name: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -185,6 +149,11 @@ export function TransactionsTable({
               id="customer"
               value={customerSearch}
               onChange={(event) => setCustomerSearch(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  updateFilter("customer", customerSearch);
+                }
+              }}
               placeholder="Search customer..."
               className="h-10 w-full rounded-md border bg-background px-3 text-sm"
             />
@@ -200,6 +169,11 @@ export function TransactionsTable({
               id="account"
               value={accountSearch}
               onChange={(event) => setAccountSearch(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  updateFilter("account", accountSearch);
+                }
+              }}
               placeholder="Search account..."
               className="h-10 w-full rounded-md border bg-background px-3 text-sm"
             />
@@ -218,15 +192,10 @@ export function TransactionsTable({
               className="h-10 w-full rounded-md border bg-background px-3 text-sm"
             >
               <option value="">All Types</option>
-
               <option value="CASH_DEPOSIT">Cash Deposit</option>
-
               <option value="CASH_WITHDRAWAL">Cash Withdrawal</option>
-
               <option value="TRANSFER">Transfer</option>
-
               <option value="CARD_PAYMENT">Card Payment</option>
-
               <option value="INTERNATIONAL_TRANSFER">
                 International Transfer
               </option>
@@ -248,9 +217,7 @@ export function TransactionsTable({
               className="h-10 w-full rounded-md border bg-background px-3 text-sm"
             >
               <option value="">All Directions</option>
-
               <option value="CREDIT">Credit</option>
-
               <option value="DEBIT">Debit</option>
             </select>
           </div>
@@ -312,21 +279,14 @@ export function TransactionsTable({
             <thead className="border-b bg-muted/50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">Date</th>
-
                 <th className="px-4 py-3 text-left font-medium">Customer</th>
-
                 <th className="px-4 py-3 text-left font-medium">Account</th>
-
                 <th className="px-4 py-3 text-left font-medium">Type</th>
-
                 <th className="px-4 py-3 text-left font-medium">Direction</th>
-
                 <th className="px-4 py-3 text-right font-medium">Amount</th>
-
                 <th className="px-4 py-3 text-left font-medium">
                   Counterparty
                 </th>
-
                 <th className="px-4 py-3 text-right font-medium">Action</th>
               </tr>
             </thead>

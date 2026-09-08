@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import { TransactionsTable } from "@/components/transactions/transactions-table";
 import { getTransactions } from "@/lib/transactions/get-transactions";
 
@@ -46,9 +45,12 @@ export default async function TransactionsPage({
           </p>
         </div>
 
-        <Button className="bg-green-600 text-white hover:bg-green-700">
-          <Link href="/transactions/new">Create Transaction</Link>
-        </Button>
+        <Link
+          href="/transactions/new/"
+          className="inline-flex h-10 items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
+        >
+          Create Transaction
+        </Link>
       </div>
 
       {/* Transactions */}

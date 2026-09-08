@@ -1,22 +1,24 @@
 import prisma from "@/lib/prisma";
 
 export async function getActiveAccounts() {
-  return prisma.bankAccount.findMany({
-    where: {
-      status: "ACTIVE",
-    },
+  const accounts = await prisma.bankAccount.findMany({
+    where: { status: "ACTIVE" },
     select: {
       id: true,
       accountNo: true,
       currency: true,
+      balance: true,
       customer: {
         select: {
           name: true,
         },
       },
     },
-    orderBy: {
-      accountNo: "asc",
-    },
+    orderBy: { accountNo: "asc" },
   });
+
+  return accounts.map((account) => ({
+    ...account,
+    balance: account.balance.toString(),
+  }));
 }
