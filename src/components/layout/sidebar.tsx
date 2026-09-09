@@ -154,11 +154,11 @@ export async function Sidebar() {
         </nav>
 
         {/* Bottom */}
-        <div className="border-t p-4">
+        {/* <div className="border-t p-4">
           <p className="text-xs text-muted-foreground">
             Rule-Based AML Monitoring
           </p>
-        </div>
+        </div> */}
       </div>
     </aside>
   );
