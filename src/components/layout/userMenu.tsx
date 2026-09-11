@@ -3,7 +3,7 @@
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +20,10 @@ type UserMenuProps = {
   name: string;
   email: string;
   role: string;
+  image: string;
 };
 
-export function UserMenu({ name, email, role }: UserMenuProps) {
+export function UserMenu({ name, email, role, image }: UserMenuProps) {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -42,6 +43,7 @@ export function UserMenu({ name, email, role }: UserMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent">
         <Avatar className="h-8 w-8">
+          {image && <AvatarImage src={image} alt={name} />}
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
 

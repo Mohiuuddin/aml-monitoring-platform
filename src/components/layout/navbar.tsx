@@ -26,7 +26,12 @@ export async function Navbar() {
           </Button>
 
           {user && (
-            <UserMenu name={user.name} email={user.email} role={user.role} />
+            <UserMenu
+              name={user.name}
+              email={user.email}
+              role={user.role}
+              image={user.image ?? ""}
+            />
           )}
         </div>
       </div>

@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
+import { StartInvestigationButton } from "@/components/investigations/start-investigation-button";
+
 type AlertDetails = {
   id: string;
   riskScore: number;
@@ -378,7 +380,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
           </p>
 
           <div className="mt-5">
-            <Button>Start Investigation</Button>
+            <StartInvestigationButton alertId={alert.id} />
           </div>
         </div>
       </div>
