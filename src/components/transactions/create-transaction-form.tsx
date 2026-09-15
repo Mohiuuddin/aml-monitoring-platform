@@ -61,6 +61,7 @@ export function CreateTransactionForm({
 
   const isCashTransaction =
     type === "CASH_DEPOSIT" || type === "CASH_WITHDRAWAL";
+  const isDomesticTransaction = type === "TRANSFER" || type === "CARD_PAYMENT";
 
   const isDirectionFixed =
     type === "CASH_DEPOSIT" ||
@@ -270,12 +271,19 @@ export function CreateTransactionForm({
 
             <input
               id="counterparty-country"
-              value={counterpartyCountry}
+              value={isDomesticTransaction ? "Bangladesh" : counterpartyCountry}
               onChange={(event) => setCounterpartyCountry(event.target.value)}
-              disabled={isPending}
+              disabled={isPending || isDomesticTransaction}
+              readOnly={isDomesticTransaction}
               placeholder="e.g. Bangladesh"
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+              className="h-10 w-full rounded-md border bg-background px-3 text-sm disabled:cursor-not-allowed disabled:opacity-70"
             />
+
+            {isDomesticTransaction && (
+              <p className="text-xs text-muted-foreground">
+                Domestic transfers are within Bangladesh.
+              </p>
+            )}
           </div>
         </>
       )}

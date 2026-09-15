@@ -32,10 +32,8 @@ enum TransactionType {
 }
 
 enum TransactionDirection {
-
-CREDIT
-DEBIT  
-
+  CREDIT
+  DEBIT
 }
 
 enum RiskLevel {
@@ -58,6 +56,12 @@ enum InvestigationStatus {
   IN_PROGRESS
   ESCALATED
   RESOLVED
+}
+
+enum JurisdictionRisk {
+  NORMAL
+  INCREASED_MONITORING
+  CALL_FOR_ACTION
 }
 
 enum AuditAction {
@@ -126,14 +130,14 @@ model Customer {
 }
 
 model BankAccount {
-  id         String   @id @default(cuid())
-  accountNo  String   @unique
+  id         String        @id @default(cuid())
+  accountNo  String        @unique
   customerId String
-  currency   String   @default("BDT")
-  balance    Decimal  @default(0)
-  status AccountStatus @default(ACTIVE)
-  openedAt   DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  currency   String        @default("BDT")
+  balance    Decimal       @default(0)
+  status     AccountStatus @default(ACTIVE)
+  openedAt   DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
   customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
   transactions Transaction[]
@@ -215,6 +219,21 @@ model AlertRule {
 
   @@unique([alertId, ruleId])
   @@map("alert_rules")
+}
+
+model Jurisdiction {
+  id        String           @id @default(cuid())
+  country   String           @unique
+  code      String           @unique
+  riskLevel JurisdictionRisk
+  source    String?
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([riskLevel])
+  @@index([isActive])
+  @@map("jurisdictions")
 }
 
 model Investigation {

@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { calculateRiskScore } from "@/lib/aml/risk-scoring";
+import { getCountryCode } from "@/lib/aml/get-country-code";
 
 const CTR_THRESHOLD_BDT = 1_000_000;
 const LOOKBACK_DAYS = 30;
@@ -242,9 +243,26 @@ async function checkHighRiskJurisdiction(
     return false;
   }
 
-  // Jurisdiction data should eventually come from a configurable
-  // reference table rather than being hard-coded in the rule engine.
-  return false;
+  const countryCode = getCountryCode(transaction.counterpartyCountry);
+
+  if (!countryCode) {
+    return false;
+  }
+
+  const jurisdiction = await prisma.jurisdiction.findFirst({
+    where: {
+      code: countryCode,
+      isActive: true,
+      riskLevel: {
+        in: ["INCREASED_MONITORING", "CALL_FOR_ACTION"],
+      },
+    },
+    select: {
+      riskLevel: true,
+    },
+  });
+
+  return jurisdiction !== null;
 }
 
 export async function evaluateTransactionRisk(
