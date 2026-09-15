@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 import prisma from "@/lib/prisma";
+import { createAuditLog } from "@/lib/audit/create-audit-log";
 
 interface StartInvestigationInput {
   alertId: string;
@@ -53,6 +54,16 @@ export async function startInvestigation({ alertId }: StartInvestigationInput) {
     });
 
     return newInvestigation;
+  });
+
+  await createAuditLog({
+    userId: currentUser.id,
+    action: "INVESTIGATION_STARTED",
+    entity: "Investigation",
+    entityId: investigation.id,
+    metadata: {
+      alertId: alert.id,
+    },
   });
 
   return investigation;

@@ -1,104 +1,67 @@
-import {
-  AlertTriangle,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  FileSearch,
-} from "lucide-react";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { DashboardStatCard } from "@/components/dashboard/dashboard-stat-card";
+import { RecentAlerts } from "@/components/dashboard/recent-alerts";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getDashboardStats } from "@/lib/dashboard/get-dashboard-stats";
+import { getRecentAlerts } from "@/lib/dashboard/get-recent-alerts";
 
-const stats = [
-  {
-    title: "Total Transactions",
-    value: "12,458",
-    description: "Transactions monitored",
-    icon: ArrowUpFromLine,
-  },
-  {
-    title: "Open Alerts",
-    value: "48",
-    description: "Require attention",
-    icon: AlertTriangle,
-  },
-  {
-    title: "High-Risk Alerts",
-    value: "12",
-    description: "High or critical risk",
-    icon: ArrowDownToLine,
-  },
-  {
-    title: "Active Investigations",
-    value: "7",
-    description: "Currently under review",
-    icon: FileSearch,
-  },
-];
+import { TransactionAlertChart } from "@/components/dashboard/transaction-alert-chart";
+import { getDashboardTrends } from "@/lib/dashboard/get-dashboard-trends";
 
-export default function DashboardPage() {
+import { RiskDistributionChart } from "@/components/dashboard/risk-distribution-chart";
+import { getRiskDistribution } from "@/lib/dashboard/get-risk-distribution";
+
+import { DashboardQuickActions } from "@/components/dashboard/dashboard-quick-actions";
+
+export default async function DashboardPage() {
+  const [stats, recentAlerts, trends, riskDistribution] = await Promise.all([
+    getDashboardStats(),
+    getRecentAlerts(),
+    getDashboardTrends(),
+    getRiskDistribution(),
+  ]);
+
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">AML Dashboard</h1>
+    <div className="space-y-6">
+      <DashboardHeader />
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          Overview of transaction monitoring and suspicious activity.
-        </p>
-      </div>
-
-      {/* Statistics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
+        <DashboardStatCard title="Customers" value={stats.totalCustomers} />
 
-          return (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
+        <DashboardStatCard title="Accounts" value={stats.totalAccounts} />
 
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
+        <DashboardStatCard
+          title="Transactions"
+          value={stats.totalTransactions}
+        />
 
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {stat.description}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
+        <DashboardStatCard title="Total Alerts" value={stats.totalAlerts} />
       </div>
 
-      {/* Recent activity */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <DashboardStatCard title="Open Alerts" value={stats.openAlerts} />
+
+        <DashboardStatCard
+          title="Investigating"
+          value={stats.investigatingAlerts}
+        />
+
+        <DashboardStatCard title="Escalated" value={stats.escalatedAlerts} />
+
+        <DashboardStatCard title="High Risk" value={stats.highRiskAlerts} />
+
+        <DashboardStatCard title="Critical" value={stats.criticalAlerts} />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Alerts</CardTitle>
-          </CardHeader>
+        <TransactionAlertChart data={trends} />
 
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              No recent alerts to display.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Investigations</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              No recent investigations to display.
-            </p>
-          </CardContent>
-        </Card>
+        <RiskDistributionChart data={riskDistribution} />
       </div>
+
+      <DashboardQuickActions />
+
+      <RecentAlerts alerts={recentAlerts} />
     </div>
   );
 }

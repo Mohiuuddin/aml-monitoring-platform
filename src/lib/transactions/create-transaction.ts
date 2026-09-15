@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createAlertForTransaction } from "@/lib/aml/create-alert";
+import { createAuditLog } from "@/lib/audit/create-audit-log";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 
@@ -113,6 +114,22 @@ export async function createTransaction({
     });
 
     return createdTransaction;
+  });
+
+  // Record the transaction creation in the audit log.
+  await createAuditLog({
+    userId: user.id,
+    action: "CREATE",
+    entity: "Transaction",
+    entityId: transaction.id,
+    metadata: {
+      accountId: account.id,
+      customerId: account.customerId,
+      amount: numericAmount,
+      currency: account.currency,
+      type,
+      direction,
+    },
   });
 
   // Run AML monitoring after the transaction has been committed.

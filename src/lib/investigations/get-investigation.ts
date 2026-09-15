@@ -49,6 +49,7 @@ export async function getInvestigation(id: string) {
               direction: true,
               counterparty: true,
               counterpartyCountry: true,
+              description: true,
               transactionAt: true,
             },
           },

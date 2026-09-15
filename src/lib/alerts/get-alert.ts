@@ -68,6 +68,13 @@ export async function getAlert(id: string) {
           },
         },
       },
+
+      investigation: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
     },
   });
 }

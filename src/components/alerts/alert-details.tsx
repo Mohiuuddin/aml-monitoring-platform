@@ -1,7 +1,8 @@
+"use client";
+
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-
 import { StartInvestigationButton } from "@/components/investigations/start-investigation-button";
 
 type AlertDetails = {
@@ -64,14 +65,19 @@ function formatTransactionType(type: string) {
   switch (type) {
     case "CASH_DEPOSIT":
       return "Cash Deposit";
+
     case "CASH_WITHDRAWAL":
       return "Cash Withdrawal";
+
     case "TRANSFER":
       return "Transfer";
+
     case "CARD_PAYMENT":
       return "Card Payment";
+
     case "INTERNATIONAL_TRANSFER":
       return "International Transfer";
+
     default:
       return type;
   }
@@ -95,12 +101,16 @@ function getRiskClass(riskLevel: string) {
   switch (riskLevel) {
     case "LOW":
       return "bg-green-100 text-green-700";
+
     case "MEDIUM":
       return "bg-yellow-100 text-yellow-700";
+
     case "HIGH":
       return "bg-orange-100 text-orange-700";
+
     case "CRITICAL":
       return "bg-red-100 text-red-700";
+
     default:
       return "bg-muted text-muted-foreground";
   }
@@ -110,14 +120,19 @@ function getStatusClass(status: string) {
   switch (status) {
     case "OPEN":
       return "bg-blue-100 text-blue-700";
+
     case "INVESTIGATING":
       return "bg-yellow-100 text-yellow-700";
+
     case "ESCALATED":
       return "bg-orange-100 text-orange-700";
+
     case "FALSE_POSITIVE":
       return "bg-gray-100 text-gray-700";
+
     case "CLOSED":
       return "bg-green-100 text-green-700";
+
     default:
       return "bg-muted text-muted-foreground";
   }
@@ -131,6 +146,11 @@ function formatStatus(status: string) {
 }
 
 export function AlertDetails({ alert }: AlertDetailsProps) {
+  const investigationExists =
+    alert.status === "INVESTIGATING" ||
+    alert.status === "ESCALATED" ||
+    alert.status === "CLOSED";
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -178,6 +198,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
 
             <p className="mt-1 text-2xl font-bold">
               {alert.riskScore}
+
               <span className="text-sm font-normal text-muted-foreground">
                 {" "}
                 / 100
@@ -219,31 +240,37 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
         <div className="mt-5 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div>
             <p className="text-sm text-muted-foreground">Name</p>
+
             <p className="mt-1 font-medium">{alert.customer.name}</p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Customer Number</p>
+
             <p className="mt-1 font-medium">{alert.customer.customerNumber}</p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Country</p>
+
             <p className="mt-1 font-medium">{alert.customer.country}</p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Email</p>
+
             <p className="mt-1 font-medium">{alert.customer.email ?? "—"}</p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Phone</p>
+
             <p className="mt-1 font-medium">{alert.customer.phone ?? "—"}</p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Customer Risk Level</p>
+
             <p className="mt-1 font-medium">{alert.customer.riskLevel}</p>
           </div>
         </div>
@@ -257,6 +284,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
           <div className="mt-5 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <div>
               <p className="text-sm text-muted-foreground">Amount</p>
+
               <p className="mt-1 text-lg font-semibold">
                 {formatAmount(
                   alert.transaction.amount,
@@ -267,6 +295,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
 
             <div>
               <p className="text-sm text-muted-foreground">Type</p>
+
               <p className="mt-1 font-medium">
                 {formatTransactionType(alert.transaction.type)}
               </p>
@@ -274,6 +303,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
 
             <div>
               <p className="text-sm text-muted-foreground">Direction</p>
+
               <p className="mt-1 font-medium">
                 {alert.transaction.direction === "CREDIT" ? "Credit" : "Debit"}
               </p>
@@ -281,6 +311,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
 
             <div>
               <p className="text-sm text-muted-foreground">Account</p>
+
               <p className="mt-1 font-medium">
                 {alert.transaction.account.accountNo}
               </p>
@@ -288,6 +319,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
 
             <div>
               <p className="text-sm text-muted-foreground">Counterparty</p>
+
               <p className="mt-1 font-medium">
                 {alert.transaction.counterparty ?? "—"}
               </p>
@@ -297,6 +329,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
               <p className="text-sm text-muted-foreground">
                 Counterparty Country
               </p>
+
               <p className="mt-1 font-medium">
                 {alert.transaction.counterpartyCountry ?? "—"}
               </p>
@@ -304,6 +337,7 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
 
             <div>
               <p className="text-sm text-muted-foreground">Transaction Date</p>
+
               <p className="mt-1 font-medium">
                 {formatDate(alert.transaction.transactionAt)}
               </p>
@@ -375,12 +409,19 @@ export function AlertDetails({ alert }: AlertDetailsProps) {
           <h2 className="text-xl font-semibold">Investigation</h2>
 
           <p className="mt-2 text-base font-medium leading-6">
-            Start an investigation to review this alert and document your
-            findings.
+            {investigationExists
+              ? "An investigation has been started for this alert."
+              : "Start an investigation to review this alert and document your findings."}
           </p>
 
           <div className="mt-5">
-            <StartInvestigationButton alertId={alert.id} />
+            {investigationExists ? (
+              <Button type="button" variant="outline">
+                <Link href="/investigations">View Investigation</Link>
+              </Button>
+            ) : (
+              <StartInvestigationButton alertId={alert.id} />
+            )}
           </div>
         </div>
       </div>

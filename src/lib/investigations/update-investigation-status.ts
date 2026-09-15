@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
+import { createAuditLog } from "@/lib/audit/create-audit-log";
 
 type InvestigationStatus = "OPEN" | "IN_PROGRESS" | "ESCALATED" | "RESOLVED";
 
@@ -25,6 +26,10 @@ export async function updateInvestigationStatus({
   if (user.role !== "ADMIN" && user.role !== "ANALYST") {
     throw new Error("Unauthorized.");
   }
+
+  // if (status === "RESOLVED" && user.role !== "ADMIN") {
+  //   throw new Error("Only an admin can resolve an investigation.");
+  // }
 
   const investigation = await prisma.investigation.findUnique({
     where: {
@@ -90,6 +95,23 @@ export async function updateInvestigationStatus({
     }
 
     return updated;
+  });
+
+  await createAuditLog({
+    userId: user.id,
+    action:
+      status === "ESCALATED"
+        ? "ALERT_ESCALATED"
+        : status === "RESOLVED"
+          ? "ALERT_CLOSED"
+          : "STATUS_CHANGE",
+    entity: "Investigation",
+    entityId: investigation.id,
+    metadata: {
+      previousStatus: investigation.status,
+      newStatus: status,
+      alertId: investigation.alertId,
+    },
   });
 
   revalidatePath(`/investigations/${investigationId}`);

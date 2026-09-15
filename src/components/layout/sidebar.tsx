@@ -63,7 +63,7 @@ const adminNavigation = [
   },
   {
     title: "Audit Logs",
-    href: "/audit-logs",
+    href: "/audit",
     icon: History,
   },
 ];

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
+import { createAuditLog } from "@/lib/audit/create-audit-log";
 
 interface AddInvestigationNoteInput {
   investigationId: string;
@@ -53,6 +54,17 @@ export async function addInvestigationNote({
       investigationId,
       authorId: user.id,
       content: trimmedContent,
+    },
+  });
+
+  await createAuditLog({
+    userId: user.id,
+    action: "INVESTIGATION_UPDATED",
+    entity: "Investigation",
+    entityId: investigation.id,
+    metadata: {
+      event: "NOTE_ADDED",
+      noteId: note.id,
     },
   });
 

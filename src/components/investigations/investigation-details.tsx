@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import { AddInvestigationNote } from "@/components/investigations/add-investigation-note";
+import { UpdateInvestigationStatus } from "@/components/investigations/update-investigation-status";
+import { Button } from "@/components/ui/button";
 
 interface InvestigationDetailsProps {
   investigation: {
@@ -42,6 +45,7 @@ interface InvestigationDetailsProps {
         direction: string;
         counterparty: string | null;
         counterpartyCountry: string | null;
+        description: string | null;
         transactionAt: string;
       } | null;
 
@@ -82,23 +86,33 @@ function formatStatus(status: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function getStatusClass(status: string) {
-  switch (status) {
-    case "OPEN":
-      return "bg-blue-100 text-blue-700";
+function formatTransactionType(type: string) {
+  switch (type) {
+    case "CASH_DEPOSIT":
+      return "Cash Deposit";
 
-    case "IN_PROGRESS":
-      return "bg-yellow-100 text-yellow-700";
+    case "CASH_WITHDRAWAL":
+      return "Cash Withdrawal";
 
-    case "ESCALATED":
-      return "bg-orange-100 text-orange-700";
+    case "TRANSFER":
+      return "Transfer";
 
-    case "RESOLVED":
-      return "bg-green-100 text-green-700";
+    case "CARD_PAYMENT":
+      return "Card Payment";
+
+    case "INTERNATIONAL_TRANSFER":
+      return "International Transfer";
 
     default:
-      return "bg-muted text-muted-foreground";
+      return type;
   }
+}
+
+function formatAmount(amount: string, currency: string) {
+  return `${new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(amount))} ${currency}`;
 }
 
 function getRiskClass(riskLevel: string) {
@@ -120,6 +134,25 @@ function getRiskClass(riskLevel: string) {
   }
 }
 
+function getStatusClass(status: string) {
+  switch (status) {
+    case "OPEN":
+      return "bg-blue-100 text-blue-700";
+
+    case "IN_PROGRESS":
+      return "bg-yellow-100 text-yellow-700";
+
+    case "ESCALATED":
+      return "bg-orange-100 text-orange-700";
+
+    case "RESOLVED":
+      return "bg-green-100 text-green-700";
+
+    default:
+      return "bg-muted text-muted-foreground";
+  }
+}
+
 export function InvestigationDetails({
   investigation,
 }: InvestigationDetailsProps) {
@@ -131,6 +164,9 @@ export function InvestigationDetails({
       <div className="space-y-4">
         <Button variant="outline">
           <Link href={`/alerts/${alert.id}`}>← Back to Alert</Link>
+        </Button>
+        <Button variant="outline" className="ml-3">
+          <Link href="/investigations">← Back to Investigations</Link>
         </Button>
 
         <div className="flex items-start justify-between gap-4">
@@ -201,6 +237,14 @@ export function InvestigationDetails({
             <p className="mt-2 text-sm leading-6">{investigation.summary}</p>
           </div>
         )}
+
+        {investigation.closedAt && (
+          <div className="mt-6 rounded-md border bg-muted/30 p-4">
+            <p className="text-sm font-semibold">Closed At</p>
+
+            <p className="mt-2 text-sm">{formatDate(investigation.closedAt)}</p>
+          </div>
+        )}
       </div>
 
       {/* Alert */}
@@ -212,11 +256,9 @@ export function InvestigationDetails({
             <p className="mt-1 text-sm text-muted-foreground">{alert.title}</p>
           </div>
 
-          <Link href={`/alerts/${alert.id}`}>
-            <Button variant="outline" size="sm">
-              View Alert
-            </Button>
-          </Link>
+          <Button variant="outline" size="sm">
+            <Link href={`/alerts/${alert.id}`}>View Alert</Link>
+          </Button>
         </div>
 
         {alert.description && (
@@ -261,50 +303,60 @@ export function InvestigationDetails({
         <div className="mt-5 grid gap-6 md:grid-cols-3">
           <div>
             <p className="text-sm text-muted-foreground">Name</p>
+
             <p className="mt-1 font-medium">{alert.customer.name}</p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Customer Number</p>
+
             <p className="mt-1 font-medium">{alert.customer.customerNumber}</p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Customer ID</p>
+
             <p className="mt-1 font-medium">{alert.customer.id}</p>
           </div>
         </div>
       </div>
 
       {/* Transaction */}
-      {alert.transaction && (
-        <div className="rounded-lg border bg-card p-6">
-          <h2 className="text-lg font-semibold">Transaction</h2>
+      <div className="rounded-lg border bg-card p-6">
+        <h2 className="text-lg font-semibold">Transaction</h2>
 
+        {alert.transaction ? (
           <div className="mt-5 grid gap-6 md:grid-cols-3">
             <div>
               <p className="text-sm text-muted-foreground">Amount</p>
+
               <p className="mt-1 text-lg font-semibold">
-                {new Intl.NumberFormat("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(Number(alert.transaction.amount))}{" "}
-                {alert.transaction.currency}
+                {formatAmount(
+                  alert.transaction.amount,
+                  alert.transaction.currency,
+                )}
               </p>
             </div>
 
             <div>
               <p className="text-sm text-muted-foreground">Type</p>
-              <p className="mt-1 font-medium">{alert.transaction.type}</p>
+
+              <p className="mt-1 font-medium">
+                {formatTransactionType(alert.transaction.type)}
+              </p>
             </div>
 
             <div>
               <p className="text-sm text-muted-foreground">Direction</p>
-              <p className="mt-1 font-medium">{alert.transaction.direction}</p>
+
+              <p className="mt-1 font-medium">
+                {alert.transaction.direction === "CREDIT" ? "Credit" : "Debit"}
+              </p>
             </div>
 
             <div>
               <p className="text-sm text-muted-foreground">Counterparty</p>
+
               <p className="mt-1 font-medium">
                 {alert.transaction.counterparty ?? "—"}
               </p>
@@ -314,6 +366,7 @@ export function InvestigationDetails({
               <p className="text-sm text-muted-foreground">
                 Counterparty Country
               </p>
+
               <p className="mt-1 font-medium">
                 {alert.transaction.counterpartyCountry ?? "—"}
               </p>
@@ -321,36 +374,65 @@ export function InvestigationDetails({
 
             <div>
               <p className="text-sm text-muted-foreground">Transaction Date</p>
+
               <p className="mt-1 font-medium">
                 {formatDate(alert.transaction.transactionAt)}
               </p>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* Triggered Rules */}
-      <div className="rounded-lg border bg-card p-6">
-        <h2 className="text-lg font-semibold">Triggered AML Rules</h2>
+            {alert.transaction.description && (
+              <div className="md:col-span-2 lg:col-span-3">
+                <p className="text-sm text-muted-foreground">Description</p>
 
-        <div className="mt-5 space-y-3">
-          {alert.triggeredRules.map(({ rule }) => (
-            <div key={rule.id} className="rounded-md border bg-muted/20 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-semibold">{rule.name}</p>
-
-                  <p className="mt-1 font-mono text-xs text-muted-foreground">
-                    {rule.code}
-                  </p>
-                </div>
-
-                <span className="rounded-md border bg-background px-3 py-1 text-sm font-semibold">
-                  Weight: {rule.riskWeight}
-                </span>
+                <p className="mt-1 font-medium">
+                  {alert.transaction.description}
+                </p>
               </div>
+            )}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">
+            No transaction is associated with this alert.
+          </p>
+        )}
+      </div>
+
+      {/* Triggered AML Rules */}
+      <div className="rounded-lg border bg-card p-6">
+        <div>
+          <h2 className="text-xl font-semibold">Triggered AML Rules</h2>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            Rules that caused this transaction to generate an AML alert.
+          </p>
+        </div>
+
+        <div className="mt-5 space-y-4">
+          {alert.triggeredRules.length === 0 ? (
+            <div className="rounded-md border bg-muted/30 p-4">
+              <p className="text-sm text-muted-foreground">
+                No AML rules were recorded for this alert.
+              </p>
             </div>
-          ))}
+          ) : (
+            alert.triggeredRules.map(({ rule }) => (
+              <div key={rule.id} className="rounded-lg border bg-muted/20 p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-base font-semibold">{rule.name}</h3>
+
+                    <p className="mt-1 font-mono text-sm font-medium text-muted-foreground">
+                      {rule.code}
+                    </p>
+                  </div>
+
+                  <span className="rounded-md border bg-background px-3 py-1 text-sm font-semibold">
+                    Weight: {rule.riskWeight}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -390,19 +472,26 @@ export function InvestigationDetails({
           )}
         </div>
       </div>
-      {/* Actions */}
+
+      {/* Investigation Actions */}
       <div className="rounded-lg border bg-card p-6">
         <h2 className="text-lg font-semibold">Investigation Actions</h2>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Investigation actions will be available here.
+          Update the investigation status as the review progresses.
         </p>
 
-        <div className="mt-5 flex gap-2">
-          <Button disabled>Update Status</Button>
-          <Button variant="outline" disabled>
-            Add Note
-          </Button>
+        <div className="mt-5">
+          <UpdateInvestigationStatus
+            investigationId={investigation.id}
+            currentStatus={
+              investigation.status as
+                | "OPEN"
+                | "IN_PROGRESS"
+                | "ESCALATED"
+                | "RESOLVED"
+            }
+          />
         </div>
       </div>
     </div>
