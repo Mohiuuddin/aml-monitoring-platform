@@ -448,51 +448,56 @@ npm run test:run
 
 ## Project Structure
 
+```text
 aml-monitoring-platform/
 ├── prisma/
-│ ├── schema.prisma
-│ ├── seed.ts
-│ └── migrations/
+│   ├── schema.prisma
+│   ├── seed.ts
+│   └── migrations/
 │
 ├── src/
-│ ├── app/
-│ │ ├── (auth)/
-│ │ ├── (dashboard)/
-│ │ └── api/
-│ │
-│ ├── components/
-│ │ ├── dashboard/
-│ │ ├── customers/
-│ │ ├── accounts/
-│ │ ├── transactions/
-│ │ ├── alerts/
-│ │ ├── investigations/
-│ │ ├── audit-logs/
-│ │ └── ui/
-│ │
-│ ├── lib/
-│ │ ├── aml/
-│ │ │ ├── **tests**/
-│ │ │ ├── rule-engine.ts
-│ │ │ ├── risk-scoring.ts
-│ │ │ ├── create-alert.ts
-│ │ │ └── get-country-code.ts
-│ │ │
-│ │ ├── auth/
-│ │ ├── audit/
-│ │ ├── dashboard/
-│ │ ├── investigations/
-│ │ ├── transactions/
-│ │ │ └── **tests**/
-│ │ └── prisma.ts
-│ │
-│ └── generated/
-│ └── prisma/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   ├── (dashboard)/
+│   │   └── api/
+│   │
+│   ├── components/
+│   │   ├── dashboard/
+│   │   ├── customers/
+│   │   ├── accounts/
+│   │   ├── transactions/
+│   │   ├── alerts/
+│   │   ├── investigations/
+│   │   ├── audit-logs/
+│   │   └── ui/
+│   │
+│   ├── lib/
+│   │   ├── aml/
+│   │   │   ├── __tests__/
+│   │   │   │   ├── risk-scoring.test.ts
+│   │   │   │   └── rule-engine.test.ts
+│   │   │   ├── rule-engine.ts
+│   │   │   ├── risk-scoring.ts
+│   │   │   ├── create-alert.ts
+│   │   │   └── get-country-code.ts
+│   │   │
+│   │   ├── auth/
+│   │   ├── audit/
+│   │   ├── dashboard/
+│   │   ├── investigations/
+│   │   ├── transactions/
+│   │   │   └── __tests__/
+│   │   │       └── create-transaction.test.ts
+│   │   └── prisma.ts
+│   │
+│   └── generated/
+│       └── prisma/
 │
 ├── prisma.config.ts
 ├── vitest.config.ts
 ├── package.json
 └── README.md
+```
 
 ## Installation
 
