@@ -37,6 +37,7 @@ export async function getInvestigation(id: string) {
               id: true,
               customerNumber: true,
               name: true,
+              riskLevel: true,
             },
           },
 

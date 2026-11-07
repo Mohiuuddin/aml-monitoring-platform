@@ -214,8 +214,22 @@ export function CustomersTable({
 
                   <TableCell>{customer.country}</TableCell>
 
-                  <TableCell>
+                  {/* <TableCell>
                     <Badge variant="outline">{customer.riskLevel}</Badge>
+                  </TableCell> */}
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={
+                        customer.riskLevel === "CRITICAL"
+                          ? "border-red-600 bg-red-50 text-red-700"
+                          : customer.riskLevel === "HIGH"
+                            ? "border-orange-500 bg-orange-50 text-orange-700"
+                            : ""
+                      }
+                    >
+                      {customer.riskLevel}
+                    </Badge>
                   </TableCell>
 
                   <TableCell>

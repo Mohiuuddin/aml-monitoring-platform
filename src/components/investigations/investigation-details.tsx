@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { AddInvestigationNote } from "@/components/investigations/add-investigation-note";
 import { UpdateInvestigationStatus } from "@/components/investigations/update-investigation-status";
+import { UpdateCustomerRisk } from "@/components/investigations/update-customer-risk";
 import { Button } from "@/components/ui/button";
 
 interface InvestigationDetailsProps {
@@ -35,6 +36,7 @@ interface InvestigationDetailsProps {
         id: string;
         customerNumber: string;
         name: string;
+        riskLevel: string;
       };
 
       transaction: {
@@ -474,7 +476,7 @@ export function InvestigationDetails({
       </div>
 
       {/* Investigation Actions */}
-      <div className="rounded-lg border bg-card p-6">
+      {/* <div className="rounded-lg border bg-card p-6">
         <h2 className="text-lg font-semibold">Investigation Actions</h2>
 
         <p className="mt-1 text-sm text-muted-foreground">
@@ -490,6 +492,42 @@ export function InvestigationDetails({
                 | "IN_PROGRESS"
                 | "ESCALATED"
                 | "RESOLVED"
+            }
+          />
+        </div>
+      </div> */}
+
+      {/* Investigation Actions */}
+      <div className="rounded-lg border bg-card p-6">
+        <h2 className="text-lg font-semibold">Investigation Actions</h2>
+
+        <p className="mt-1 text-sm text-muted-foreground">
+          Update the investigation status and customer risk level as the review
+          progresses.
+        </p>
+
+        <div className="mt-5">
+          <UpdateInvestigationStatus
+            investigationId={investigation.id}
+            currentStatus={
+              investigation.status as
+                | "OPEN"
+                | "IN_PROGRESS"
+                | "ESCALATED"
+                | "RESOLVED"
+            }
+          />
+        </div>
+
+        <div className="mt-6 border-t pt-6">
+          <UpdateCustomerRisk
+            customerId={investigation.alert.customer.id}
+            currentRiskLevel={
+              investigation.alert.customer.riskLevel as
+                | "LOW"
+                | "MEDIUM"
+                | "HIGH"
+                | "CRITICAL"
             }
           />
         </div>
