@@ -12,7 +12,7 @@ This project was developed as a portfolio project inspired by real-world banking
 
 # Live Demo
 
-**Application:** [AML Monitoring Platform](YOUR_DEPLOYED_APP_URL)
+**Application:** [AML Monitoring Platform](https://aml-monitoring-platform.vercel.app/signup)
 
 **GitHub Repository:** [AML Monitoring Platform](https://github.com/Mohiuuddin/aml-monitoring-platform)
 
